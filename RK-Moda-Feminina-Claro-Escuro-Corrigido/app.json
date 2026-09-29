@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "name": "RK Moda Feminina",
+    "slug": "rk-moda-feminina",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "android": {
+      "package": "com.rkmoda.feminina"
+    },
+    "ios": {
+      "bundleIdentifier": "com.rkmoda.feminina"
+    }
+  }
+}
