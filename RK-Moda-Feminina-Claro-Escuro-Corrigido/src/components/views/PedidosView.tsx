@@ -16,8 +16,10 @@ import {
   Plus,
 } from '../MaterialIcon.tsx';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 export const PedidosView: React.FC = () => {
+  useTheme();
   const { orders, updateOrderStatus, setActiveHub } = useApp();
   const [filterStatus, setFilterStatus] = useState<string>('Todos');
   const [localSearch, setLocalSearch] = useState('');

@@ -17,8 +17,10 @@ import {
   Calendar,
 } from '../MaterialIcon.tsx';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 export const ClientesView: React.FC = () => {
+  useTheme();
   const { customers, setActiveHub, selectedStateFilter, setSelectedStateFilter } = useApp();
   const [searchFilter, setSearchFilter] = useState('');
 

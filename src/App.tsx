@@ -28,7 +28,7 @@ const MainNavigator: React.FC = () => {
 
   // 3. Post-Login Flow ("Após o login, o aplicativo deve exibir os botões 'Cadastro' e 'Painel de Controle'...")
   return (
-    <View style={styles.appContainer}>
+    <View key={mode} style={styles.appContainer}>
       {activeHub === 'hub' && <PostLoginHub />}
       {activeHub === 'cadastro' && <CadastroScreen />}
       {activeHub === 'panel' && <PainelControle />}

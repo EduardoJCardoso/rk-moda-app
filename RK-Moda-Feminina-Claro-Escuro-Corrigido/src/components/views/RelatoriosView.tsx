@@ -11,8 +11,10 @@ import {
   PieChart,
 } from '../MaterialIcon.tsx';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 export const RelatoriosView: React.FC = () => {
+  useTheme();
   const { orders } = useApp();
 
   const totalRevenue =

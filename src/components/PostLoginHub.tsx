@@ -20,8 +20,10 @@ import {
   Sparkles,
 } from './MaterialIcon.tsx';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../theme/ThemeContext';
 
 export const PostLoginHub: React.FC = () => {
+  const { isDark } = useTheme();
   const {
     setActiveHub,
     setActiveTab,
@@ -44,7 +46,7 @@ export const PostLoginHub: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Background accents */}
       <View style={styles.bgGlowTop} />

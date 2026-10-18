@@ -5,7 +5,8 @@ type IconProps = { color?: string; size?: number; strokeWidth?: number };
 const icon = (name: React.ComponentProps<typeof MaterialCommunityIcons>["name"]) =>
   ({ color, size }: IconProps) => <MaterialCommunityIcons name={name} color={color} size={size} />;
 
-export const ShoppingBag = icon('shopping-bag');
+export const PackagePlus = icon('package-variant');
+export const ShoppingBag = icon('shopping');
 export const LayoutDashboard = icon('view-dashboard-outline');
 export const UserPlus = icon('account-plus-outline');
 export const User = icon('account');
@@ -29,7 +30,6 @@ export const BarChart2 = icon('chart-bar');
 export const Settings = icon('cog-outline');
 export const ArrowLeft = icon('arrow-left');
 export const PlusCircle = icon('plus-circle-outline');
-export const PackagePlus = icon('package-variant-plus');
 export const FileText = icon('file-document-outline');
 export const CheckCircle2 = icon('check-circle-outline');
 export const Search = icon('magnify');

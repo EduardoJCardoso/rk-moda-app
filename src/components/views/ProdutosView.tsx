@@ -17,8 +17,10 @@ import {
   CheckCircle2,
 } from '../MaterialIcon.tsx';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 export const ProdutosView: React.FC = () => {
+  useTheme();
   const { products, updateProduct, deleteProduct, setActiveHub } = useApp();
   const [selectedCategory, setSelectedCategory] = useState('Todos');
   const [search, setSearch] = useState('');

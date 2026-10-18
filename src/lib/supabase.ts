@@ -51,7 +51,7 @@ export function getSavedCredentials() {
 }
 
 // Backend desativado nesta versão para manter o app independente.
-export function getSupabaseClient(): null {
+export function getSupabaseClient(): any {
   return null;
 }
 

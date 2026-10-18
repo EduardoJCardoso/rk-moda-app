@@ -21,6 +21,7 @@ import {
   PlusCircle,
 } from './MaterialIcon.tsx';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../theme/ThemeContext';
 import { NavTab } from '../types';
 import { DashboardView } from './views/DashboardView';
 import { PedidosView } from './views/PedidosView';
@@ -31,6 +32,7 @@ import { RelatoriosView } from './views/RelatoriosView';
 import { ConfiguracoesView } from './views/ConfiguracoesView';
 
 export const PainelControle: React.FC = () => {
+  const { isDark } = useTheme();
   const {
     activeTab,
     setActiveTab,
@@ -72,7 +74,7 @@ export const PainelControle: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Top Header */}
       <View style={styles.header}>
@@ -82,7 +84,7 @@ export const PainelControle: React.FC = () => {
             style={styles.backBtn}
             activeOpacity={0.7}
           >
-            <ArrowLeft color="#FFFFFF" size={18} />
+            <ArrowLeft color={isDark ? '#FFFFFF' : '#0F172A'} size={18} />
           </TouchableOpacity>
           <View>
             <View style={styles.titleRow}>

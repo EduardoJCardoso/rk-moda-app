@@ -9,12 +9,14 @@ import {
   StatusBar,
 } from 'react-native';
 import { ShoppingBag, Sparkles } from './MaterialIcon.tsx';
+import { useTheme } from '../theme/ThemeContext';
 
 interface InitialSplashScreenProps {
   onComplete: () => void;
 }
 
 export const InitialSplashScreen: React.FC<InitialSplashScreenProps> = ({ onComplete }) => {
+  const { isDark } = useTheme();
   const [loadingStep, setLoadingStep] = useState(0);
   const progressAnim = useRef(new Animated.Value(0)).current;
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -71,7 +73,7 @@ export const InitialSplashScreen: React.FC<InitialSplashScreenProps> = ({ onComp
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Ambient background orbs */}
       <View style={styles.topOrb} />

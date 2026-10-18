@@ -21,8 +21,10 @@ import {
   Sparkles,
 } from './MaterialIcon.tsx';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../theme/ThemeContext';
 
 export const PerfilModal: React.FC = () => {
+  const { mode, setMode } = useTheme();
   const {
     isProfileOpen,
     setIsProfileOpen,
@@ -172,6 +174,38 @@ export const PerfilModal: React.FC = () => {
                     style={styles.input}
                     placeholderTextColor="#64748B"
                   />
+                </View>
+
+                <View style={styles.themeRow}>
+                  <Text style={styles.fieldLabel}>Modo de Exibição</Text>
+                  <View style={styles.themeButtons}>
+                    <TouchableOpacity
+                      onPress={() => setMode('light')}
+                      style={[styles.themeButton, mode === 'light' && styles.themeButtonActive]}
+                    >
+                      <Text
+                        style={[
+                          styles.themeButtonText,
+                          mode === 'light' && styles.themeButtonTextActive,
+                        ]}
+                      >
+                        Claro
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      onPress={() => setMode('dark')}
+                      style={[styles.themeButton, mode === 'dark' && styles.themeButtonActive]}
+                    >
+                      <Text
+                        style={[
+                          styles.themeButtonText,
+                          mode === 'dark' && styles.themeButtonTextActive,
+                        ]}
+                      >
+                        Escuro
+                      </Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
               </View>
 
@@ -345,6 +379,39 @@ const styles = ThemeStyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 9,
     fontSize: 13,
+    color: '#FFFFFF',
+  },
+  themeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 4,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#242B4E',
+  },
+  themeButtons: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  themeButton: {
+    backgroundColor: '#0F1326',
+    borderWidth: 1,
+    borderColor: '#242B4E',
+    borderRadius: 10,
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+  },
+  themeButtonActive: {
+    backgroundColor: '#FF7597',
+    borderColor: '#FF7597',
+  },
+  themeButtonText: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#94A3B8',
+  },
+  themeButtonTextActive: {
     color: '#FFFFFF',
   },
   actionRow: {

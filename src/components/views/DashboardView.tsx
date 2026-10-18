@@ -15,8 +15,10 @@ import {
   ArrowUpRight,
 } from '../MaterialIcon.tsx';
 import { useApp } from '../../context/AppContext';
+import { useTheme } from '../../theme/ThemeContext';
 
 export const DashboardView: React.FC = () => {
+  const { isDark } = useTheme();
   const { products, orders, customers, setActiveTab } = useApp();
 
   const totalRevenue =
@@ -53,8 +55,8 @@ export const DashboardView: React.FC = () => {
   const topProducts = [
     { name: 'Conjunto lanzinha Juliana', count: 36, max: 36, color: '#FF7597' },
     { name: 'Conjunto linho Jogger', count: 21, max: 36, color: '#A78BFA' },
-    { name: 'Vestido Tricot Jade', count: 20, max: 36, color: '#93C5FD' },
-    { name: 'Conjunto Blusa coração e calça', count: 17, max: 36, color: '#CBD5E1' },
+    { name: 'Vestido Tricot Jade', count: 20, max: 36, color: '#60A5FA' },
+    { name: 'Conjunto Blusa coração e calça', count: 17, max: 36, color: isDark ? '#CBD5E1' : '#64748B' },
     { name: 'Body canelado cruzado', count: 17, max: 36, color: '#F472B6' },
   ];
 

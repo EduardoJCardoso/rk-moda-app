@@ -11,8 +11,10 @@ import {
   CheckCircle,
   Sparkles,
 } from '../MaterialIcon.tsx';
+import { useTheme } from '../../theme/ThemeContext';
 
 export const PrevisoesView: React.FC = () => {
+  useTheme();
   const monthsProjection = [
     { month: 'Mai/26', proj: 15.2, low: 14.0, high: 16.5, orders: 110, conf: '94%' },
     { month: 'Jun/26', proj: 16.4, low: 14.8, high: 18.0, orders: 122, conf: '91%' },

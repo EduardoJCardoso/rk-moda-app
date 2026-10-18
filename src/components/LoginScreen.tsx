@@ -12,9 +12,11 @@ import {
 } from 'react-native';
 import { ShoppingBag, Lock, Mail, ArrowRight, ShieldCheck, Eye, EyeOff, Check } from './MaterialIcon.tsx';
 import { useApp } from '../context/AppContext';
+import { useTheme } from '../theme/ThemeContext';
 
 export const LoginScreen: React.FC = () => {
   const { login } = useApp();
+  const { isDark } = useTheme();
   const [email, setEmail] = useState('admin@rkmoda.com');
   const [password, setPassword] = useState('••••••••');
   const [showPassword, setShowPassword] = useState(false);
@@ -47,7 +49,7 @@ export const LoginScreen: React.FC = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <StatusBar barStyle="light-content" />
+      <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       {/* Background ambient accents */}
       <View style={styles.topGlow} />
