@@ -11,18 +11,35 @@ import {
   CheckCircle,
   Sparkles,
 } from '../MaterialIcon.tsx';
+import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../theme/ThemeContext';
 
 export const PrevisoesView: React.FC = () => {
   useTheme();
-  const monthsProjection = [
-    { month: 'Mai/26', proj: 15.2, low: 14.0, high: 16.5, orders: 110, conf: '94%' },
-    { month: 'Jun/26', proj: 16.4, low: 14.8, high: 18.0, orders: 122, conf: '91%' },
-    { month: 'Jul/26', proj: 17.8, low: 15.5, high: 19.8, orders: 135, conf: '88%' },
-    { month: 'Ago/26', proj: 18.5, low: 16.0, high: 21.0, orders: 140, conf: '85%' },
-    { month: 'Set/26', proj: 19.9, low: 17.2, high: 22.5, orders: 154, conf: '82%' },
-    { month: 'Out/26', proj: 24.2, low: 20.5, high: 28.0, orders: 190, conf: '79%' },
-  ];
+  const { monthlyForecasts } = useApp();
+
+  const monthsProjection =
+    monthlyForecasts && monthlyForecasts.length > 0
+      ? monthlyForecasts.slice(0, 6).map((f) => ({
+          month: f.month,
+          proj: Number(((f.projected_sales || 0) / 1000).toFixed(1)),
+          low: Number(((f.low || f.projected_sales * 0.9) / 1000).toFixed(1)),
+          high: Number(((f.high || f.projected_sales * 1.1) / 1000).toFixed(1)),
+          orders: f.orders || Math.round((f.projected_sales || 0) / 130),
+          conf: f.confidence || '89%',
+          vs_avg: f.vs_average || '+8.5%',
+        }))
+      : [
+          { month: 'Nov/26', proj: 15.2, low: 14.0, high: 16.5, orders: 110, conf: '94%', vs_avg: '+8.5%' },
+          { month: 'Dez/26', proj: 24.2, low: 20.5, high: 28.0, orders: 190, conf: '91%', vs_avg: '+72.8%' },
+          { month: 'Jan/27', proj: 12.4, low: 10.8, high: 14.0, orders: 95, conf: '89%', vs_avg: '-11.4%' },
+          { month: 'Fev/27', proj: 14.8, low: 13.2, high: 16.4, orders: 112, conf: '86%', vs_avg: '+5.7%' },
+          { month: 'Mar/27', proj: 17.8, low: 15.5, high: 19.8, orders: 135, conf: '84%', vs_avg: '+27.1%' },
+          { month: 'Abr/27', proj: 19.9, low: 17.2, high: 22.5, orders: 154, conf: '82%', vs_avg: '+42.1%' },
+        ];
+
+  const nextMonth = monthsProjection[0];
+  const bestMonth = [...monthsProjection].sort((a, b) => b.proj - a.proj)[0];
 
   return (
     <View style={styles.container}>
@@ -45,11 +62,13 @@ export const PrevisoesView: React.FC = () => {
       <View style={styles.metricsGrid}>
         <View style={styles.metricCard}>
           <View style={styles.metricHeader}>
-            <Text style={styles.metricLabel}>Próximo Mês</Text>
+            <Text style={styles.metricLabel}>Próximo Mês ({nextMonth.month})</Text>
             <TrendingUp color="#FF7597" size={14} />
           </View>
-          <Text style={styles.metricValue}>R$ 16.400</Text>
-          <Text style={[styles.metricFooter, { color: '#34D399' }]}>+8.5% sobre atual</Text>
+          <Text style={styles.metricValue}>
+            R$ {(nextMonth.proj * 1000).toLocaleString('pt-BR')}
+          </Text>
+          <Text style={[styles.metricFooter, { color: '#34D399' }]}>{nextMonth.vs_avg} vs média</Text>
         </View>
 
         <View style={styles.metricCard}>
@@ -57,8 +76,8 @@ export const PrevisoesView: React.FC = () => {
             <Text style={styles.metricLabel}>Crescimento</Text>
             <ArrowUpRight color="#34D399" size={14} />
           </View>
-          <Text style={[styles.metricValue, { color: '#34D399' }]}>+8.5%</Text>
-          <Text style={[styles.metricFooter, { color: '#94A3B8' }]}>Tendência de alta</Text>
+          <Text style={[styles.metricValue, { color: '#34D399' }]}>{nextMonth.vs_avg}</Text>
+          <Text style={[styles.metricFooter, { color: '#94A3B8' }]}>Tendência projetada</Text>
         </View>
 
         <View style={styles.metricCard}>
@@ -66,8 +85,10 @@ export const PrevisoesView: React.FC = () => {
             <Text style={styles.metricLabel}>Melhor Mês</Text>
             <BarChart2 color="#C084FC" size={14} />
           </View>
-          <Text style={styles.metricValue}>Out/26</Text>
-          <Text style={[styles.metricFooter, { color: '#C084FC' }]}>R$ 24.200 estimados</Text>
+          <Text style={styles.metricValue}>{bestMonth.month}</Text>
+          <Text style={[styles.metricFooter, { color: '#C084FC' }]}>
+            R$ {(bestMonth.proj * 1000).toLocaleString('pt-BR')} estimados
+          </Text>
         </View>
 
         <View style={styles.metricCard}>
@@ -75,7 +96,7 @@ export const PrevisoesView: React.FC = () => {
             <Text style={styles.metricLabel}>Confiança</Text>
             <CheckCircle color="#60A5FA" size={14} />
           </View>
-          <Text style={styles.metricValue}>86.5%</Text>
+          <Text style={styles.metricValue}>{nextMonth.conf}</Text>
           <Text style={[styles.metricFooter, { color: '#60A5FA' }]}>Alta precisão</Text>
         </View>
       </View>

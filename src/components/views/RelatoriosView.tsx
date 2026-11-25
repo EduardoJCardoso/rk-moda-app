@@ -15,28 +15,51 @@ import { useTheme } from '../../theme/ThemeContext';
 
 export const RelatoriosView: React.FC = () => {
   useTheme();
-  const { orders } = useApp();
+  const { orders, storeStats } = useApp();
 
-  const totalRevenue =
-    orders
-      .filter((o) => o.status === 'Pago' || o.status === 'Enviado')
-      .reduce((acc, o) => acc + o.total, 0) + 76677.44;
+  const totalRevenue = storeStats
+    ? storeStats.receita_aprovada
+    : orders
+        .filter((o) => o.status === 'Pago' || o.status === 'Enviado')
+        .reduce((acc, o) => acc + o.total, 0);
 
-  const avgTicket = totalRevenue / (orders.length + 400);
+  const approvedOrdersCount = storeStats
+    ? Math.max(1, storeStats.pedidos_pagos + storeStats.pedidos_enviados)
+    : Math.max(1, orders.length);
 
-  const paymentBreakdown = [
-    { method: 'Mercado Pago', pct: 48, val: 'R$ 38.2k', color: '#FF7597' },
-    { method: 'Pix Instantâneo', pct: 32, val: 'R$ 25.5k', color: '#34D399' },
-    { method: 'Cartão de Crédito', pct: 15, val: 'R$ 11.9k', color: '#C084FC' },
-    { method: 'Outros', pct: 5, val: 'R$ 4.0k', color: '#64748B' },
-  ];
+  const totalOrdersCount = storeStats ? storeStats.total_pedidos : orders.length;
+  const avgTicket = totalRevenue / approvedOrdersCount;
 
-  const categoryBreakdown = [
-    { name: 'Conjuntos de Alfaiataria & Linho', pct: 45, color: '#FF7597' },
-    { name: 'Vestidos & Peças Únicas', pct: 25, color: '#A78BFA' },
-    { name: 'Calças & Leggings', pct: 18, color: '#60A5FA' },
-    { name: 'Blusas & Bodies', pct: 12, color: '#F472B6' },
-  ];
+  const palette = ['#FF7597', '#34D399', '#C084FC', '#60A5FA', '#FBBF24', '#64748B'];
+
+  const paymentBreakdown =
+    storeStats && storeStats.meios_pagamento.length > 0
+      ? storeStats.meios_pagamento.map((mp, idx) => ({
+          method: mp.forma_pagamento,
+          pct: mp.percentual,
+          val: `R$ ${(mp.valor_total / 1000).toFixed(1)}k`,
+          color: palette[idx % palette.length],
+        }))
+      : [
+          { method: 'Mercado Pago', pct: 48, val: 'R$ 38.2k', color: '#FF7597' },
+          { method: 'Pix Instantâneo', pct: 32, val: 'R$ 25.5k', color: '#34D399' },
+          { method: 'Cartão de Crédito', pct: 15, val: 'R$ 11.9k', color: '#C084FC' },
+          { method: 'Outros', pct: 5, val: 'R$ 4.0k', color: '#64748B' },
+        ];
+
+  const categoryBreakdown =
+    storeStats && storeStats.categorias_vendas.length > 0
+      ? storeStats.categorias_vendas.slice(0, 5).map((cv, idx) => ({
+          name: `${cv.categoria} (${cv.qtd_produtos} modelos · ${cv.itens_vendidos} vend.)`,
+          pct: cv.percentual_catalogo,
+          color: palette[idx % palette.length],
+        }))
+      : [
+          { name: 'Conjuntos de Alfaiataria & Linho', pct: 45, color: '#FF7597' },
+          { name: 'Vestidos & Peças Únicas', pct: 25, color: '#A78BFA' },
+          { name: 'Calças & Leggings', pct: 18, color: '#60A5FA' },
+          { name: 'Blusas & Bodies', pct: 12, color: '#F472B6' },
+        ];
 
   return (
     <View style={styles.container}>
@@ -70,8 +93,8 @@ export const RelatoriosView: React.FC = () => {
 
         <View style={styles.metricCard}>
           <Text style={styles.metricLabel}>Total de Pedidos</Text>
-          <Text style={styles.metricValue}>{orders.length + 400}</Text>
-          <Text style={[styles.metricFooter, { color: '#C084FC' }]}>Finalizados</Text>
+          <Text style={styles.metricValue}>{totalOrdersCount.toLocaleString('pt-BR')}</Text>
+          <Text style={[styles.metricFooter, { color: '#C084FC' }]}>Registrados no banco</Text>
         </View>
 
         <View style={styles.metricCard}>

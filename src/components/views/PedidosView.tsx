@@ -1,10 +1,11 @@
 import { ThemeStyleSheet } from '../../theme/ThemeStyleSheet';
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import {
   ShoppingBag,
@@ -17,30 +18,110 @@ import {
 } from '../MaterialIcon.tsx';
 import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../theme/ThemeContext';
+import { normalizeSearchText, searchSupabaseOrders } from '../../lib/supabase';
+import { Order } from '../../types';
 
 export const PedidosView: React.FC = () => {
   useTheme();
-  const { orders, updateOrderStatus, setActiveHub } = useApp();
+  const { orders, storeStats, updateOrderStatus, setActiveHub } = useApp();
   const [filterStatus, setFilterStatus] = useState<string>('Todos');
   const [localSearch, setLocalSearch] = useState('');
+  const [remoteOrders, setRemoteOrders] = useState<Order[] | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(25);
 
-  const stats = {
-    todos: orders.length + 6172,
-    pagos: orders.filter((o) => o.status === 'Pago').length + 3,
-    aguardando: orders.filter((o) => o.status === 'Aguardando').length,
-    enviados: 3505,
-    cancelados: 2648,
+  const stats = storeStats
+    ? {
+        todos: storeStats.total_pedidos,
+        pagos: storeStats.pedidos_pagos,
+        aguardando: storeStats.pedidos_aguardando,
+        enviados: storeStats.pedidos_enviados,
+        cancelados: storeStats.pedidos_cancelados,
+      }
+    : {
+        todos: orders.length,
+        pagos: orders.filter((o) => o.status === 'Pago').length,
+        aguardando: orders.filter((o) => o.status === 'Aguardando').length,
+        enviados: orders.filter((o) => o.status === 'Enviado').length,
+        cancelados: orders.filter((o) => o.status === 'Cancelado').length,
+      };
+
+  useEffect(() => {
+    setVisibleCount(25);
+  }, [localSearch, filterStatus]);
+
+  useEffect(() => {
+    const trimmed = localSearch.trim();
+    if (!trimmed && filterStatus === 'Todos') {
+      setRemoteOrders(null);
+      setIsSearching(false);
+      return;
+    }
+
+    let cancelled = false;
+    setIsSearching(true);
+    const timer = setTimeout(async () => {
+      try {
+        const res = await searchSupabaseOrders(trimmed, filterStatus, 100);
+        if (!cancelled) {
+          setRemoteOrders(res);
+        }
+      } catch (err) {
+        console.warn('Erro na busca de pedidos no Supabase:', err);
+      } finally {
+        if (!cancelled) {
+          setIsSearching(false);
+        }
+      }
+    }, 250);
+
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
+    };
+  }, [localSearch, filterStatus]);
+
+  const filteredOrders = useMemo(() => {
+    const normQuery = normalizeSearchText(localSearch);
+
+    const localMatches = orders.filter((order) => {
+      const matchesStatus = filterStatus === 'Todos' || order.status === filterStatus;
+      if (!matchesStatus) return false;
+      if (!normQuery) return true;
+      const haystack = normalizeSearchText(
+        `${order.id} ${order.customer_name} ${order.customer_email} ${order.products_desc} ${order.payment_method}`
+      );
+      return haystack.includes(normQuery);
+    });
+
+    if (!remoteOrders) {
+      return localMatches;
+    }
+
+    const seen = new Set<string>();
+    const merged: Order[] = [];
+    for (const item of [...remoteOrders, ...localMatches]) {
+      if (!seen.has(item.id)) {
+        seen.add(item.id);
+        merged.push(item);
+      }
+    }
+    return merged;
+  }, [orders, remoteOrders, localSearch, filterStatus]);
+
+  const displayedOrders = useMemo(
+    () => filteredOrders.slice(0, visibleCount),
+    [filteredOrders, visibleCount]
+  );
+
+  const handleStatusChange = (orderId: string, nextStatus: Order['status']) => {
+    updateOrderStatus(orderId, nextStatus);
+    if (remoteOrders) {
+      setRemoteOrders((prev) =>
+        prev ? prev.map((o) => (o.id === orderId ? { ...o, status: nextStatus } : o)) : prev
+      );
+    }
   };
-
-  const filteredOrders = orders.filter((order) => {
-    const matchesStatus = filterStatus === 'Todos' || order.status === filterStatus;
-    const matchesSearch =
-      localSearch === '' ||
-      order.id.toLowerCase().includes(localSearch.toLowerCase()) ||
-      order.customer_name.toLowerCase().includes(localSearch.toLowerCase()) ||
-      order.products_desc.toLowerCase().includes(localSearch.toLowerCase());
-    return matchesStatus && matchesSearch;
-  });
 
   return (
     <View style={styles.container}>
@@ -72,7 +153,7 @@ export const PedidosView: React.FC = () => {
             <Text style={styles.statusLabel}>Todos</Text>
             <ShoppingBag color="#94A3B8" size={14} />
           </View>
-          <Text style={styles.statusCount}>{stats.todos}</Text>
+          <Text style={styles.statusCount}>{stats.todos.toLocaleString('pt-BR')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -84,7 +165,7 @@ export const PedidosView: React.FC = () => {
             <Text style={styles.statusLabel}>Pagos</Text>
             <CheckCircle2 color="#34D399" size={14} />
           </View>
-          <Text style={styles.statusCount}>{stats.pagos}</Text>
+          <Text style={styles.statusCount}>{stats.pagos.toLocaleString('pt-BR')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -96,7 +177,7 @@ export const PedidosView: React.FC = () => {
             <Text style={styles.statusLabel}>Aguardando</Text>
             <Clock color="#FBBF24" size={14} />
           </View>
-          <Text style={styles.statusCount}>{stats.aguardando}</Text>
+          <Text style={styles.statusCount}>{stats.aguardando.toLocaleString('pt-BR')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -108,7 +189,7 @@ export const PedidosView: React.FC = () => {
             <Text style={styles.statusLabel}>Enviados</Text>
             <Truck color="#C084FC" size={14} />
           </View>
-          <Text style={styles.statusCount}>{stats.enviados}</Text>
+          <Text style={styles.statusCount}>{stats.enviados.toLocaleString('pt-BR')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -120,7 +201,7 @@ export const PedidosView: React.FC = () => {
             <Text style={styles.statusLabel}>Cancelados</Text>
             <XCircle color="#FB7185" size={14} />
           </View>
-          <Text style={styles.statusCount}>{stats.cancelados}</Text>
+          <Text style={styles.statusCount}>{stats.cancelados.toLocaleString('pt-BR')}</Text>
         </TouchableOpacity>
       </View>
 
@@ -130,20 +211,33 @@ export const PedidosView: React.FC = () => {
         <TextInput
           value={localSearch}
           onChangeText={setLocalSearch}
-          placeholder="Buscar por cliente, pedido ou peça..."
+          placeholder="Buscar em 6.524 pedidos por número (#), cliente ou peça..."
           placeholderTextColor="#64748B"
           style={styles.searchInput}
+          autoCorrect={false}
+          autoCapitalize="none"
+          returnKeyType="search"
         />
+        {isSearching && <ActivityIndicator size="small" color="#FF7597" />}
+        {localSearch.length > 0 && (
+          <TouchableOpacity onPress={() => setLocalSearch('')} activeOpacity={0.7}>
+            <XCircle color="#94A3B8" size={16} />
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Orders List */}
       <View style={styles.ordersList}>
-        {filteredOrders.length === 0 ? (
+        {displayedOrders.length === 0 ? (
           <View style={styles.emptyCard}>
-            <Text style={styles.emptyText}>Nenhum pedido encontrado para o filtro.</Text>
+            <Text style={styles.emptyText}>
+              {isSearching
+                ? 'Buscando pedidos no Supabase...'
+                : 'Nenhum pedido encontrado para o filtro.'}
+            </Text>
           </View>
         ) : (
-          filteredOrders.map((ord) => (
+          displayedOrders.map((ord) => (
             <View key={ord.id} style={styles.orderCard}>
               <View style={styles.orderTopRow}>
                 <View style={styles.orderIdBox}>
@@ -198,7 +292,7 @@ export const PedidosView: React.FC = () => {
                 <View style={styles.statusButtonsGroup}>
                   {ord.status !== 'Pago' && (
                     <TouchableOpacity
-                      onPress={() => updateOrderStatus(ord.id, 'Pago')}
+                      onPress={() => handleStatusChange(ord.id, 'Pago')}
                       style={styles.actionBtnSmall}
                     >
                       <Text style={styles.actionBtnSmallText}>Pago</Text>
@@ -206,7 +300,7 @@ export const PedidosView: React.FC = () => {
                   )}
                   {ord.status !== 'Enviado' && (
                     <TouchableOpacity
-                      onPress={() => updateOrderStatus(ord.id, 'Enviado')}
+                      onPress={() => handleStatusChange(ord.id, 'Enviado')}
                       style={styles.actionBtnSmall}
                     >
                       <Text style={styles.actionBtnSmallText}>Enviado</Text>
@@ -214,7 +308,7 @@ export const PedidosView: React.FC = () => {
                   )}
                   {ord.status !== 'Aguardando' && (
                     <TouchableOpacity
-                      onPress={() => updateOrderStatus(ord.id, 'Aguardando')}
+                      onPress={() => handleStatusChange(ord.id, 'Aguardando')}
                       style={styles.actionBtnSmall}
                     >
                       <Text style={styles.actionBtnSmallText}>Aguardando</Text>
@@ -224,6 +318,18 @@ export const PedidosView: React.FC = () => {
               </View>
             </View>
           ))
+        )}
+
+        {filteredOrders.length > visibleCount && (
+          <TouchableOpacity
+            onPress={() => setVisibleCount((prev) => prev + 25)}
+            style={styles.loadMoreBtn}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.loadMoreText}>
+              Ver mais pedidos ({filteredOrders.length - visibleCount} restantes)
+            </Text>
+          </TouchableOpacity>
         )}
       </View>
     </View>
@@ -444,5 +550,19 @@ const styles = ThemeStyleSheet.create({
     fontSize: 10,
     fontWeight: '600',
     color: '#CBD5E1',
+  },
+  loadMoreBtn: {
+    backgroundColor: '#14182E',
+    borderWidth: 1,
+    borderColor: '#FF7597',
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  loadMoreText: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#FF7597',
   },
 });

@@ -19,7 +19,7 @@ import { useApp } from '../../context/AppContext';
 import { useTheme } from '../../theme/ThemeContext';
 
 export const ConfiguracoesView: React.FC = () => {
-  const { user, updateUser } = useApp();
+  const { user, updateUser, supabaseConfig, supabaseConnected, storeStats, refreshData } = useApp();
   const { mode, setMode } = useTheme();
 
   const [storeName, setStoreName] = useState(user.store_name);
@@ -186,15 +186,27 @@ export const ConfiguracoesView: React.FC = () => {
             </View>
           </TouchableOpacity>
 
-          <View style={styles.syncStatusRow}>
+          <TouchableOpacity
+            onPress={async () => {
+              await refreshData();
+              setSaveStatus('Dados sincronizados com o Supabase com sucesso!');
+              setTimeout(() => setSaveStatus(null), 3000);
+            }}
+            activeOpacity={0.8}
+            style={styles.syncStatusRow}
+          >
             <ShieldCheck color="#34D399" size={18} />
             <View style={{ flex: 1 }}>
-              <Text style={styles.syncStatusTitle}>Sistema Sincronizado</Text>
+              <Text style={styles.syncStatusTitle}>
+                {supabaseConnected ? 'Conectado ao Supabase (PostgreSQL)' : 'Sincronizando com Supabase...'}
+              </Text>
               <Text style={styles.syncStatusSubtitle}>
-                Atualização em tempo real ativa em todos os dispositivos
+                {storeStats
+                  ? `${storeStats.total_pedidos.toLocaleString('pt-BR')} pedidos · ${storeStats.total_clientes.toLocaleString('pt-BR')} clientes · ${storeStats.total_produtos_ativos.toLocaleString('pt-BR')} produtos (${supabaseConfig.url.replace('https://', '')})`
+                  : `Endpoint: ${supabaseConfig.url}`}
               </Text>
             </View>
-          </View>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity

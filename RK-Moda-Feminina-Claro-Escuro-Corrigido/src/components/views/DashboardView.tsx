@@ -19,46 +19,68 @@ import { useTheme } from '../../theme/ThemeContext';
 
 export const DashboardView: React.FC = () => {
   const { isDark } = useTheme();
-  const { products, orders, customers, setActiveTab } = useApp();
+  const { products, orders, customers, storeStats, setActiveTab } = useApp();
 
-  const totalRevenue =
-    orders
-      .filter((o) => o.status === 'Pago' || o.status === 'Enviado')
-      .reduce((acc, o) => acc + o.total, 0) + 76677.44;
+  const totalRevenue = storeStats
+    ? storeStats.receita_aprovada
+    : orders
+        .filter((o) => o.status === 'Pago' || o.status === 'Enviado')
+        .reduce((acc, o) => acc + o.total, 0);
 
-  const orderCount = orders.length + 400;
-  const clientCount = customers.length > 10 ? customers.length : 334;
-  const productCount = products.length > 15 ? products.length : 6782;
+  const orderCount = (storeStats ? storeStats.total_pedidos : orders.length).toLocaleString('pt-BR');
+  const clientCount = (storeStats ? storeStats.total_clientes : customers.length).toLocaleString('pt-BR');
+  const productCount = (storeStats ? storeStats.total_produtos_ativos : products.length).toLocaleString('pt-BR');
 
   const formattedRevenue = `R$ ${totalRevenue.toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
 
-  // Monthly sales data
-  const monthlyData = [
-    { month: 'Jun', val: 12.4, target: 45 },
-    { month: 'Jul', val: 13.1, target: 45 },
-    { month: 'Ago', val: 11.9, target: 45 },
-    { month: 'Set', val: 14.2, target: 45 },
-    { month: 'Out', val: 15.5, target: 45 },
-    { month: 'Nov', val: 17.8, target: 45 },
-    { month: 'Dez', val: 24.9, target: 45 },
-    { month: 'Jan', val: 8.1, target: 45 },
-    { month: 'Fev', val: 9.3, target: 45 },
-    { month: 'Mar', val: 14.8, target: 45 },
-    { month: 'Abr', val: 16.2, target: 45 },
-  ];
+  // Monthly sales data from Supabase vw_vendas_mensais
+  const monthlyData =
+    storeStats && storeStats.vendas_mensais.length > 0
+      ? storeStats.vendas_mensais.map((m) => ({
+          month: m.mes_label,
+          val: Number((m.receita_aprovada / 1000).toFixed(1)),
+          target: 15,
+        }))
+      : [
+          { month: 'Jun', val: 12.4, target: 15 },
+          { month: 'Jul', val: 13.1, target: 15 },
+          { month: 'Ago', val: 11.9, target: 15 },
+          { month: 'Set', val: 14.2, target: 15 },
+          { month: 'Out', val: 15.5, target: 15 },
+          { month: 'Nov', val: 17.8, target: 15 },
+          { month: 'Dez', val: 24.9, target: 15 },
+          { month: 'Jan', val: 8.1, target: 15 },
+          { month: 'Fev', val: 9.3, target: 15 },
+          { month: 'Mar', val: 14.8, target: 15 },
+          { month: 'Abr', val: 16.2, target: 15 },
+        ];
 
-  const maxChartVal = 30;
+  const maxChartVal = Math.max(10, ...monthlyData.map((d) => d.val));
 
-  const topProducts = [
-    { name: 'Conjunto lanzinha Juliana', count: 36, max: 36, color: '#FF7597' },
-    { name: 'Conjunto linho Jogger', count: 21, max: 36, color: '#A78BFA' },
-    { name: 'Vestido Tricot Jade', count: 20, max: 36, color: '#60A5FA' },
-    { name: 'Conjunto Blusa coração e calça', count: 17, max: 36, color: isDark ? '#CBD5E1' : '#64748B' },
-    { name: 'Body canelado cruzado', count: 17, max: 36, color: '#F472B6' },
-  ];
+  const rankingColors = ['#FF7597', '#A78BFA', '#60A5FA', isDark ? '#CBD5E1' : '#64748B', '#F472B6'];
+  const topMax =
+    storeStats && storeStats.top_produtos.length > 0
+      ? Math.max(1, storeStats.top_produtos[0].total_vendido)
+      : 36;
+
+  const topProducts =
+    storeStats && storeStats.top_produtos.length > 0
+      ? storeStats.top_produtos.slice(0, 5).map((tp, idx) => ({
+          name: tp.nome_produto,
+          count: tp.total_vendido,
+          max: topMax,
+          color: rankingColors[idx % rankingColors.length],
+        }))
+      : [
+          { name: 'Conjunto lanzinha Juliana', count: 36, max: 36, color: '#FF7597' },
+          { name: 'Conjunto linho Jogger', count: 21, max: 36, color: '#A78BFA' },
+          { name: 'Vestido Tricot Jade', count: 20, max: 36, color: '#60A5FA' },
+          { name: 'Conjunto Blusa coração e calça', count: 17, max: 36, color: isDark ? '#CBD5E1' : '#64748B' },
+          { name: 'Body canelado cruzado', count: 17, max: 36, color: '#F472B6' },
+        ];
 
   const recentOrdersList = orders.slice(0, 5);
 

@@ -33,6 +33,7 @@ export const CadastroScreen: React.FC = () => {
     addOrder,
     products,
     customers,
+    storeStats,
   } = useApp();
 
   const [activeFormTab, setActiveFormTab] = useState<'produto' | 'cliente' | 'pedido'>('produto');
@@ -114,6 +115,7 @@ export const CadastroScreen: React.FC = () => {
     const totalVal = parseFloat(orderTotal.replace(',', '.')) || 149.9;
 
     await addOrder({
+      customer_id: cust ? cust.id : undefined,
       customer_name: cust ? cust.name : 'Cliente RK Moda',
       customer_email: cust ? cust.email : 'cliente@rkmoda.com',
       products_desc: selectedProductDesc || 'Conjunto RK Moda Feminina',
@@ -262,7 +264,9 @@ export const CadastroScreen: React.FC = () => {
                 </Text>
               </View>
               <View style={styles.badgeInfo}>
-                <Text style={styles.badgeInfoText}>{products.length} ativos</Text>
+                <Text style={styles.badgeInfoText}>
+                  {(storeStats ? storeStats.total_produtos_ativos : products.length).toLocaleString('pt-BR')} ativos
+                </Text>
               </View>
             </View>
 
@@ -399,7 +403,9 @@ export const CadastroScreen: React.FC = () => {
                 </Text>
               </View>
               <View style={styles.badgeInfo}>
-                <Text style={styles.badgeInfoText}>{customers.length} cadastradas</Text>
+                <Text style={styles.badgeInfoText}>
+                  {(storeStats ? storeStats.total_clientes : customers.length).toLocaleString('pt-BR')} cadastradas
+                </Text>
               </View>
             </View>
 

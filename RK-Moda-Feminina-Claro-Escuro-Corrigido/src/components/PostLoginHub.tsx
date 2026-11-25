@@ -32,12 +32,14 @@ export const PostLoginHub: React.FC = () => {
     products,
     orders,
     customers,
+    storeStats,
   } = useApp();
 
-  const totalRevenue =
-    orders
-      .filter((o) => o.status === 'Pago' || o.status === 'Enviado')
-      .reduce((acc, o) => acc + o.total, 0) + 76677.44;
+  const totalRevenue = storeStats
+    ? storeStats.receita_aprovada
+    : orders
+        .filter((o) => o.status === 'Pago' || o.status === 'Enviado')
+        .reduce((acc, o) => acc + o.total, 0);
 
   const formattedRevenue = `R$ ${totalRevenue.toLocaleString('pt-BR', {
     minimumFractionDigits: 2,
@@ -193,8 +195,10 @@ export const PostLoginHub: React.FC = () => {
                 <Text style={styles.statLabel}>Pedidos Totais</Text>
                 <ShoppingBag color="#FF7597" size={16} />
               </View>
-              <Text style={styles.statValue}>{orders.length + 400}</Text>
-              <Text style={[styles.statFooter, { color: '#FF7597' }]}>Em processamento</Text>
+              <Text style={styles.statValue}>
+                {(storeStats ? storeStats.total_pedidos : orders.length).toLocaleString('pt-BR')}
+              </Text>
+              <Text style={[styles.statFooter, { color: '#FF7597' }]}>Sincronizados no Supabase</Text>
             </View>
 
             <View style={styles.statCard}>
@@ -203,7 +207,7 @@ export const PostLoginHub: React.FC = () => {
                 <Package color="#A78BFA" size={16} />
               </View>
               <Text style={styles.statValue}>
-                {products.length > 15 ? products.length : '6.782'}
+                {(storeStats ? storeStats.total_produtos_ativos : products.length).toLocaleString('pt-BR')}
               </Text>
               <Text style={[styles.statFooter, { color: '#A78BFA' }]}>No catálogo</Text>
             </View>
@@ -214,9 +218,11 @@ export const PostLoginHub: React.FC = () => {
                 <Users color="#60A5FA" size={16} />
               </View>
               <Text style={styles.statValue}>
-                {customers.length > 10 ? customers.length : '5.038'}
+                {(storeStats ? storeStats.total_clientes : customers.length).toLocaleString('pt-BR')}
               </Text>
-              <Text style={[styles.statFooter, { color: '#60A5FA' }]}>Em 25 estados</Text>
+              <Text style={[styles.statFooter, { color: '#60A5FA' }]}>
+                Em {storeStats ? storeStats.total_estados : 27} estados
+              </Text>
             </View>
           </View>
         </View>

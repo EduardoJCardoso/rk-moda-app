@@ -43,6 +43,52 @@ export interface MonthlyForecast {
   projected_sales: number;
   percent_of_total: number;
   vs_average: string; // e.g. "+98.1%"
+  low?: number;
+  high?: number;
+  orders?: number;
+  confidence?: string;
+}
+
+export interface StoreStats {
+  receita_aprovada: number;
+  receita_bruta_total: number;
+  total_pedidos: number;
+  pedidos_pagos: number;
+  pedidos_aguardando: number;
+  pedidos_enviados: number;
+  pedidos_cancelados: number;
+  total_clientes: number;
+  total_estados: number;
+  clientes_sp: number;
+  clientes_mg: number;
+  total_produtos_ativos: number;
+  total_produtos_catalogo: number;
+  vendas_mensais: Array<{
+    ano_mes: string;
+    mes_label: string;
+    receita_total: number;
+    receita_aprovada: number;
+    qtd_pedidos: number;
+  }>;
+  top_produtos: Array<{
+    id_produto: number;
+    nome_produto: string;
+    total_vendido: number;
+    receita_gerada: number;
+  }>;
+  meios_pagamento: Array<{
+    forma_pagamento: string;
+    qtd_pedidos: number;
+    valor_total: number;
+    percentual: number;
+  }>;
+  categorias_vendas: Array<{
+    categoria: string;
+    qtd_produtos: number;
+    itens_vendidos: number;
+    receita_categoria: number;
+    percentual_catalogo: number;
+  }>;
 }
 
 export interface UserProfile {

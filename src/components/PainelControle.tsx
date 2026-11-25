@@ -153,6 +153,7 @@ export const PainelControle: React.FC = () => {
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {renderActiveView()}
       </ScrollView>
