@@ -14,6 +14,15 @@
     },
     "ios": {
       "bundleIdentifier": "com.rkmoda.feminina"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "0a0f2bc2-ecb6-48ca-96cd-c201dcc1e793"
+      }
+    },
+    "owner": "jeremitodev",
+    "updates": {
+      "url": "https://u.expo.dev/0a0f2bc2-ecb6-48ca-96cd-c201dcc1e793"
     }
   }
 }

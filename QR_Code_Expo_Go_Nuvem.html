@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>RK Moda Feminina — QR Code Expo Go (Nuvem 24h)</title>
+  <style>
+    body {
+      background: #0B0E1B;
+      color: #FFFFFF;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      text-align: center;
+    }
+    .card {
+      background: #14182E;
+      border: 1.5px solid #FF7597;
+      border-radius: 24px;
+      padding: 32px;
+      max-width: 460px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    h1 span { color: #FF7597; }
+    p { color: #94A3B8; font-size: 14px; line-height: 1.5; }
+    .qr-box {
+      background: #FFFFFF;
+      padding: 16px;
+      border-radius: 16px;
+      display: inline-block;
+      margin: 18px 0;
+    }
+    .url-box {
+      background: #0F1326;
+      border: 1px solid #242B4E;
+      border-radius: 12px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 12px;
+      color: #34D399;
+      word-break: break-all;
+      margin-top: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>RK <span>Moda Feminina</span></h1>
+    <p>Escaneie com a <strong>Câmera do iPhone</strong> para abrir no <strong>Expo Go direto da Nuvem</strong> (funciona 24h com o PC desligado):</p>
+    <div class="qr-box">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=exp%3A%2F%2Fu.expo.dev%2Fupdate%2F01a213a1-fdd7-71cd-95a5-ebd8f5644085" alt="QR Code iPhone Expo Go" width="240" height="240" />
+    </div>
+    <p>Ou cole este link manualmente em <strong>Enter URL manually</strong> no Expo Go do iPhone:</p>
+    <div class="url-box">exp://u.expo.dev/update/01a213a1-fdd7-71cd-95a5-ebd8f5644085</div>
+  </div>
+</body>
+</html>
